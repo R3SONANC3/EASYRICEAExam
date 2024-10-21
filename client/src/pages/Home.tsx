@@ -3,6 +3,7 @@ import { Search, Plus, Trash2 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import axios from 'axios';
 
+
 interface Inspection {
   id: number;
   name: string;
@@ -13,22 +14,17 @@ interface Inspection {
 
 const Home = () => {
   const [inspections, setInspections] = useState<Inspection[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [searchID, setSearchID] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const limit = 10;
+  const [selectedItems, setSelectedItems] = useState<number[]>([]);
 
   useEffect(() => {
     fetchInspections();
   }, [page]);
-
-  useEffect(() => {
-    
-  })
 
   const handleSearch = async () => {
     if (!searchID) return;
@@ -38,14 +34,26 @@ const Home = () => {
       );
       setInspections([response.data.data]);
     } catch (err) {
-      setError('Inspection not found');
-    } finally {
-      setLoading(false);
+
+    } 
+  };
+
+  const handleDelete = async () => {
+    if (!selectedItems || selectedItems.length === 0) return;
+    try {
+      await axios.delete(`http://localhost:5000/api/history/${selectedItems}`, {
+        data: { ids: selectedItems }
+      });
+
+      fetchInspections();
+      setSelectedItems([]);
+    } catch (error) {
+      console.error(error);
     }
   };
 
   const fetchInspections = async () => {
-    setLoading(true);
+
     try {
       const response = await axios.get(`http://localhost:5000/api/history`, {
         params: { page, limit },
@@ -53,29 +61,24 @@ const Home = () => {
       setInspections(response.data.data);
       setTotal(response.data.total);
     } catch (err) {
-      setError('Failed to fetch inspections');
-    } finally {
-      setLoading(false);
-    }
+    } 
   };
 
   const clearFilter = async () => {
     setSearchID('');
     setPage(1);
-    setError(null);
-    setLoading(true);
+
     fetchInspections();
   };
 
   const totalPages = Math.ceil(total / limit);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
 
-  if (error) {
-    return <div>{error}</div>;
-  }
+  const handleCheckboxChange = (id: number) => {
+    setSelectedItems((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -101,7 +104,8 @@ const Home = () => {
                 onChange={(e) => setSearchID(e.target.value)}
               />
 
-            </div>          <div className="flex items-end space-x-4">
+            </div>
+            <div className="flex items-end space-x-4">
               <button className="bg-green-600 text-white px-4 py-2 rounded-md">
                 <Search size={20}
                   className="inline mr-2"
@@ -140,11 +144,15 @@ const Home = () => {
 
         <div className="bg-white rounded-lg shadow overflow-x-auto">
           <div className="flex items-center p-4 border-b">
-            <button className="flex items-center text-red-600 mr-4">
-              <Trash2 size={20} className="mr-2" />
+            <button
+              className="flex items-center text-red-600 mr-4"
+              onClick={handleDelete} >
+              <Trash2 size={20}
+                className="mr-2"
+              />
               Delete
             </button>
-            <span>Select items: {inspections.length} item(s)</span>
+            <span>Select items: {selectedItems.length} item(s)</span>
           </div>
           <table className="min-w-full">
             <thead className="bg-green-600 text-white">
@@ -163,7 +171,12 @@ const Home = () => {
                   className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}
                 >
                   <td className="p-3">
-                    <input type="checkbox" className="mr-2" />
+                    <input
+                      type="checkbox"
+                      className="mr-2"
+                      checked={selectedItems.includes(inspection.id)}
+                      onChange={() => handleCheckboxChange(inspection.id)}
+                    />
                     {new Date(inspection.createdAt).toLocaleString()}
                   </td>
                   <td className="p-3">{inspection.id}</td>

@@ -6,8 +6,7 @@ import NotFound from '../pages/NotFound';
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Home />,
-    errorElement: <NotFound />, // Error boundary for 404
+    element: <Home />
   },
   {
     path: '*',

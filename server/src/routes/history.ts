@@ -13,7 +13,6 @@ interface InspectionData extends RowDataPacket {
     totalSamples: number;
 }
 
-// Route to get paginated inspections
 router.get('/', async (req: Request, res: Response) => {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
@@ -65,14 +64,38 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 });
 
-router.delete('/:id', async (req: Request, res: Response) => {
-    const id =req.params.id;
+router.delete('/:ids', async (req: Request, res: Response) => {
+    const ids = req.params.ids.split(',');
+
+    const tables = [
+        'inspectionDefects',
+        'inspectionCompositions',
+        'inspectionSamplingPoints',
+        'grainDetails',
+    ];
+
     try {
-        
+        // Delete related records for each id
+        await Promise.all(
+            tables.map(table => 
+                Promise.all(ids.map(id => 
+                    pool.query(`DELETE FROM ?? WHERE inspectionID = ?`, [table, id])
+                ))
+            )
+        );
+
+        // Delete the inspections
+        await Promise.all(ids.map(id => 
+            pool.query(`DELETE FROM inspections WHERE id = ?`, [id])
+        ));
+
+        res.status(200).json({ message: `Inspections with IDs ${ids.join(', ')} have been deleted.` });
     } catch (error) {
-        
+        console.error(error);
+        res.status(500).json({ error: (error as Error).message });
     }
-})
+});
+
 
 
 export default router;

@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import pool from '../services/db';
 import { RowDataPacket, FieldPacket } from 'mysql2';
 
@@ -64,8 +64,13 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 });
 
-router.delete('/:ids', async (req: Request, res: Response) => {
-    const ids = req.params.ids.split(',');
+router.delete('/:id', async (req: Request, res: Response) => {
+    const id = req.params.id.split(',');
+
+    if (!Array.isArray(id) || id.length === 0) {
+        res.status(400).json({ error: 'Invalid input: ids must be a non-empty array.' });
+    }
+    
 
     const tables = [
         'inspectionDefects',
@@ -78,23 +83,27 @@ router.delete('/:ids', async (req: Request, res: Response) => {
         // Delete related records for each id
         await Promise.all(
             tables.map(table => 
-                Promise.all(ids.map(id => 
+                Promise.all(id.map(id => 
                     pool.query(`DELETE FROM ?? WHERE inspectionID = ?`, [table, id])
                 ))
             )
         );
 
         // Delete the inspections
-        await Promise.all(ids.map(id => 
+        await Promise.all(id.map(id => 
             pool.query(`DELETE FROM inspections WHERE id = ?`, [id])
         ));
 
-        res.status(200).json({ message: `Inspections with IDs ${ids.join(', ')} have been deleted.` });
+        res.status(200).json({ message: `Inspections with IDs ${id.join(', ')} have been deleted.` });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: (error as Error).message });
     }
 });
+
+router.post('/', (req: Request, res: Response ) => {
+    
+})
 
 
 

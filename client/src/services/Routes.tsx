@@ -1,17 +1,22 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import Home from '../pages/Home';
+import History from '../pages/History';
 import NotFound from '../pages/NotFound';
+import Inspection from '../pages/Inspection';
 
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Home />
+    element: <History />
   },
   {
     path: '*',
-    element: <NotFound />, // Catch-all route for 404
+    element: <NotFound />, 
   },
+  {
+    path: '/inspection',
+    element: <Inspection />
+  }
 ]);
 
 const AppRoutes = () => {

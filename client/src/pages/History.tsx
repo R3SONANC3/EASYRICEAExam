@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Search, Plus, Trash2 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 
 interface Inspection {
@@ -12,7 +13,7 @@ interface Inspection {
   createdAt: string;
 }
 
-const Home = () => {
+const History = () => {
   const [inspections, setInspections] = useState<Inspection[]>([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
@@ -21,6 +22,8 @@ const Home = () => {
   const [toDate, setToDate] = useState('');
   const limit = 10;
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchInspections();
@@ -80,13 +83,17 @@ const Home = () => {
     );
   };
 
+  const handleCreateInspection = () => {
+    navigate('/inspection'); 
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
       <div className="container mx-auto mt-8 p-4">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-semibold">History</h2>
-          <button className="bg-green-600 text-white px-4 py-2 rounded-md flex items-center">
+          <button className="bg-green-600 text-white px-4 py-2 rounded-md flex items-center" onClick={handleCreateInspection}>
             <Plus className="mr-2" size={20} />
             Create Inspection
           </button>
@@ -214,4 +221,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default History;

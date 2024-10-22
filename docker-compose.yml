@@ -1,6 +1,7 @@
 version: '3.8'
 services:
   frontend:
+    container_name: client
     build:
       context: ./client
     ports:
@@ -9,6 +10,7 @@ services:
       - backend
 
   backend:
+    container_name: server
     build:
       context: ./server
     ports:

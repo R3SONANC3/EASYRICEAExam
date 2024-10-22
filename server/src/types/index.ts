@@ -24,3 +24,14 @@ export interface GrainData {
   shape: string;
   type: string;
 }
+
+export interface InspectionPayload {
+  requestID: string;
+  imageURL: string;
+  grains: Array<{
+    length: number;
+    weight: number;
+    shape: string;
+    type: string;
+  }>;
+}

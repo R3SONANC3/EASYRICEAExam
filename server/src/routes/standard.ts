@@ -4,6 +4,7 @@ import { upload, readUploadedFile } from '../services/fileService';
 import { InspectionService } from '../services/inspectionService';
 import { InspectionRequest } from '../types/express';
 import pool from '../services/db';
+import { InspectionPayload } from '../types';
 
 const router = express.Router();
 const inspectionService = new InspectionService(pool);
@@ -55,7 +56,18 @@ router.post('/',
       }
 
       const fileContents = await readUploadedFile(req.file.path);
-      console.log('Uploaded file contents:', fileContents);
+      let jsonData: InspectionPayload;
+
+      try {
+        jsonData = JSON.parse(fileContents);
+        console.log('Parsed JSON data:', jsonData);
+        
+        if (!jsonData.grains || !Array.isArray(jsonData.grains)) {
+          throw new Error('Invalid or missing grains data in uploaded file');
+        }
+      } catch (parseError) {
+        throw new Error(`Error parsing JSON from uploaded file: ${(parseError as Error).message}`);
+      }
 
       const date = new Date(req.body.samplingDateTime);
       const formattedDateTime = date.toISOString().slice(0, 19).replace('T', ' ');
@@ -74,10 +86,11 @@ router.post('/',
         await inspectionService.addSamplingPoints(inspectionID, points);
       }
 
-      if (req.body.grains) {
-        const grains = JSON.parse(req.body.grains);
-        await inspectionService.addGrainDetails(inspectionID, grains);
-      }
+      await inspectionService.addGrainDetails(
+        inspectionID, 
+        jsonData.grains, 
+        jsonData.imageURL
+      );
 
       await pool.query('COMMIT');
 

@@ -22,6 +22,12 @@ app.get('/get', (req,res) => {
 })
 
 
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
+
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

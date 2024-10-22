@@ -22,10 +22,13 @@ const CreateInspection = () => {
 
     const fetchStandards = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/standard/');
-            const standardData = response.data.map((standard: { id: string; standard_name: string; }) => ({
+            const response = await axios.get('http://localhost:5000/api/standard');
+
+            const standardData = response.data.map((standard: {
+                [x: string]: any; id: string; standard_name: string;
+            }) => ({
                 id: standard.id,
-                name: standard.standard_name,
+                name: standard.name,
             }));
             setStandards(standardData);
         } catch (error) {
@@ -94,12 +97,14 @@ const CreateInspection = () => {
                 if (value !== undefined) {
                     if (key === 'samplingPoints') {
                         formDataToSend.append(key, JSON.stringify(value));
+                    } else if (key === 'uploadFile') { // Ensure this matches the backend field
+                        formDataToSend.append('uploadFile', value); // Adjust this line
                     } else {
                         formDataToSend.append(key, value.toString());
                     }
                 }
             });
-
+            console.log(formData);
             const response = await fetch('http://localhost:5000/api/standard/', {
                 method: 'POST',
                 body: formDataToSend,
@@ -121,6 +126,7 @@ const CreateInspection = () => {
             console.error('Error submitting form:', error);
         }
     };
+
 
     return (
         <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -176,6 +182,7 @@ const CreateInspection = () => {
                             <label className="block text-sm font-medium text-gray-700">Upload File</label>
                             <div className="mt-1 flex items-center">
                                 <input
+                                    name='uploadfile'
                                     type="file"
                                     accept=".json"
                                     onChange={handleFileChange}

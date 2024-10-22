@@ -1,37 +1,40 @@
-import express, { Request, Response } from 'express';
+// src/routes/standard.ts
+import express, { Request, Response, NextFunction } from 'express';
+import { upload, readUploadedFile } from '../services/fileService';
+import { InspectionService } from '../services/inspectionService';
+import { InspectionRequest } from '../types/express';
 import pool from '../services/db';
-import multer from 'multer';
-import { ResultSetHeader } from 'mysql2';
-import path from 'path';
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadPath = path.join(__dirname, '../uploads');
-    cb(null, uploadPath);
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname);
-  }
-});
-
-const upload = multer({ storage });
 
 const router = express.Router();
+const inspectionService = new InspectionService(pool);
+
+const validateFileUpload = (
+  req: InspectionRequest,
+  res: Response,
+  next: NextFunction
+): void => {
+  if (!req.file) {
+    res.status(400).json({ message: 'No file uploaded' });
+  }
+  next();
+};
+
+const validateFields = (
+  req: InspectionRequest,
+  res: Response,
+  next: NextFunction
+): void => {
+  if (!req.body.name || !req.body.standard || req.body.standard.length === 0) {
+    res.status(400).json({ message: 'Missing required fields' });
+  }
+  next();
+};
 
 // GET all inspections
 router.get('/', async (req: Request, res: Response) => {
   try {
     const [rows] = await pool.query(`
-      SELECT 
-          i.id,
-          i.name,
-          i.createdAt,
-          s.name AS standard_name,
-          i.note,
-          i.price,
-          i.samplingDatetime
-      FROM inspections i
-      JOIN standards s ON i.standardID = s.id
+      SELECT * FROM standards
     `);
     res.json(rows);
   } catch (err) {
@@ -39,79 +42,60 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
-router.post('/', upload.single('uploadFile'), async (req: Request, res: Response) => {
-  const { name, note, price, samplingDatetime, samplingPoints, grains } = req.body;
-  const standardID = req.body.standardID[0];
+router.post('/',
+  upload.single('uploadFile'),
+  validateFileUpload,
+  validateFields,
+  async (req: InspectionRequest, res: Response): Promise<void> => {
+    try {
+      await pool.query('START TRANSACTION');
 
-  console.log(req.body);  
-  
-  // Validate required fields
-  if (!name || !standardID) {
-    res.status(400).json({ message: 'name and standardID are required' });
-  }
+      if (!req.file) {
+        throw new Error('No file uploaded');
+      }
 
-  // Check if file was uploaded
-  if (!req.file) {
-    res.status(400).json({ message: 'File upload failed or no file uploaded' });
-  }
+      const fileContents = await readUploadedFile(req.file.path);
+      console.log('Uploaded file contents:', fileContents);
 
-  try {
-    // Start a transaction to ensure data consistency
-    await pool.query('START TRANSACTION');
+      const date = new Date(req.body.samplingDateTime);
+      const formattedDateTime = date.toISOString().slice(0, 19).replace('T', ' ');
 
-    // Insert the inspection into the database
-    const [result] = await pool.query<ResultSetHeader>(
-      `INSERT INTO inspections (name, standardID, note, price, samplingDatetime, rawDataPath)
-           VALUES (?, ?, ?, ?, ?, ?)`,
-      [name, standardID, note, price, samplingDatetime, req.file?.filename] // Ensure filename is passed correctly
-    );
-
-    // Get the inserted inspection ID
-    const inspectionID = result.insertId;
-
-    // Handle sampling points if necessary
-    if (samplingPoints) {
-      const points = JSON.parse(samplingPoints);
-      const pointPromises = points.map((pointID: any) => {
-        return pool.query(
-          `INSERT INTO inspectionSamplingPoints (inspectionID, samplingPointID)
-                   VALUES (?, ?)`,
-          [inspectionID, pointID]
-        );
+      const inspectionID = await inspectionService.createInspection({
+        name: req.body.name,
+        standardID: req.body.standard[0],
+        note: req.body.note,
+        price: req.body.price,
+        samplingDateTime: formattedDateTime,
+        filePath: `/uploads/${req.file.filename}`
       });
 
-      await Promise.all(pointPromises);
-    }
+      if (req.body.samplingPoints) {
+        const points = JSON.parse(req.body.samplingPoints) as string[];
+        await inspectionService.addSamplingPoints(inspectionID, points);
+      }
 
-    // Handle grains data
-    if (grains) {
-      const grainData = JSON.parse(grains);
-      const grainPromises = grainData.map((grain: any) => {
-        return pool.query(
-          `INSERT INTO grainDetails (inspectionID, length, weight, shapeID, riceTypeID)
-                   VALUES (?, ?, ?, 
-                   (SELECT id FROM riceShapes WHERE code = ?), 
-                   (SELECT id FROM riceTypes WHERE code = ?))`,
-          [inspectionID, grain.length, grain.weight, grain.shape, grain.type]
-        );
+      if (req.body.grains) {
+        const grains = JSON.parse(req.body.grains);
+        await inspectionService.addGrainDetails(inspectionID, grains);
+      }
+
+      await pool.query('COMMIT');
+
+      res.status(201).json({
+        message: 'Inspection created successfully',
+        inspectionID,
+        fileContents
       });
 
-      await Promise.all(grainPromises);
+    } catch (error: unknown) {
+      await pool.query('ROLLBACK');
+      console.error('Error:', error);
+      const status = (error as Error).message.includes('file') ? 400 : 500;
+      res.status(status).json({
+        message: 'Error creating inspection',
+        error: (error as Error).message
+      });
     }
-
-    // Commit the transaction
-    await pool.query('COMMIT');
-
-    res.status(201).json({ message: 'Inspection and grains created successfully', inspectionID });
-  } catch (error) {
-    // Rollback the transaction if there's an error
-    await pool.query('ROLLBACK');
-
-    console.error('Error creating inspection and grains:', error);
-    res.status(500).json({ message: 'Error creating inspection and grains', error: (error as Error).message });
-  }
 });
-
-
 
 export default router;

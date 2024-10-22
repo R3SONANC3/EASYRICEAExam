@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import History from '../pages/History';
 import NotFound from '../pages/NotFound';
 import Inspection from '../pages/Inspection';
+import Result from '../pages/Result';
 
 
 const router = createBrowserRouter([
@@ -16,6 +17,10 @@ const router = createBrowserRouter([
   {
     path: '/inspection',
     element: <Inspection />
+  },
+  {
+    path: '/result',
+    element: <Result />
   }
 ]);
 

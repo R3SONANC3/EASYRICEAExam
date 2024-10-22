@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Calendar } from 'lucide-react';
 import axios from 'axios';
 import { Standard, InspectionForm } from '../services/types'
+import { useNavigate } from 'react-router-dom';
 
 
 const CreateInspection = () => {
+    const navigate = useNavigate();
     const [standards, setStandards] = useState<Standard[]>([]);
     const [formData, setFormData] = useState<InspectionForm>({
         name: '',
@@ -93,24 +95,35 @@ const CreateInspection = () => {
 
         try {
             const formDataToSend = new FormData();
+
+            // Loop through the form data to append to FormData
             Object.entries(formData).forEach(([key, value]) => {
                 if (value !== undefined) {
                     if (key === 'samplingPoints') {
                         formDataToSend.append(key, JSON.stringify(value));
-                    } else if (key === 'uploadFile') { // Ensure this matches the backend field
-                        formDataToSend.append('uploadFile', value); // Adjust this line
+                    } else if (key === 'uploadFile') {
+                        formDataToSend.append('uploadFile', value);
                     } else {
                         formDataToSend.append(key, value.toString());
                     }
                 }
             });
-            console.log(formData);
-            const response = await fetch('http://localhost:5000/api/standard/', {
-                method: 'POST',
-                body: formDataToSend,
-            });
 
-            if (response.ok) {
+            console.log('Form Data:', formData);
+
+            // Use Axios to send POST request
+            const response = await axios.post(
+                'http://localhost:5000/api/standard/',
+                formDataToSend,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                }
+            );
+
+            // Check if the request was successful
+            if (response.status === 201) {
                 setFormData({
                     name: '',
                     standard: '',
@@ -119,8 +132,10 @@ const CreateInspection = () => {
                     samplingPoints: [],
                     samplingDateTime: '',
                 });
+                console.log('Form submitted successfully');
+                navigate('/result')
             } else {
-                console.error('Submission failed');
+                console.error('Submission failed', response);
             }
         } catch (error) {
             console.error('Error submitting form:', error);
@@ -260,7 +275,7 @@ const CreateInspection = () => {
                         <div className="flex justify-end space-x-4 pt-6">
                             <button
                                 type="button"
-                                onClick={() => window.history.back()}
+                                onClick={() => navigate('/')}
                                 className="px-6 py-2.5 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-150"
                             >
                                 Cancel

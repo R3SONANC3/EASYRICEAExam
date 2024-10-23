@@ -34,11 +34,7 @@ const Details: React.FC<DetailsProps> = ({ result }) => {
     <div className="space-y-4 px-5">
       <div className="bg-white shadow-sm rounded-lg p-6">
         <div className="grid grid-cols-2 gap-y-4">
-          <div className="space-y-1">
-            <div className="text-gray-600 text-lg">Name</div>
-            <div className='font-bold'>{result.name}</div>
-          </div>
-
+          
           <div className="space-y-1">
             <div className="text-gray-600 text-lg">Create Date - Time</div>
             <div className='font-bold'>{formatDate(result.createdAt)}</div>

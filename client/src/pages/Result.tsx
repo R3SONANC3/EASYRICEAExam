@@ -3,27 +3,28 @@ import axios from "axios";
 import Details from "../components/Details";
 import ImageSection from "../components/ImageSection";
 import Navbar from "../components/Navbar";
-import { ResultData } from "../types";
+import { InspectionResponse } from "../types";
 import { useLocation, useParams } from "react-router-dom";
+import DefectRice from "../components/DefectRice";
+import Composition from "../components/Composition";
 
 const Result: React.FC = () => {
-  const [data, setData] = useState<ResultData[]>([]); 
+  const [data, setData] = useState<InspectionResponse | null>(null);
   const location = useLocation();
   const { inspectionID } = location.state || useParams();
 
-  useEffect(() => {    
+  useEffect(() => {
     if (inspectionID) {
       axios
-        .get<ResultData[]>(`http://localhost:5000/api/result/${inspectionID}`)
+        .get<InspectionResponse>(`http://localhost:5000/api/result/${inspectionID}`)
         .then((response) => {
-          setData(response.data);
+          setData(response.data);   
         })
         .catch((error) => {
           console.error("Error fetching data:", error);
         });
     }
   }, [inspectionID]);
-
 
   if (!data) {
     return (
@@ -36,7 +37,12 @@ const Result: React.FC = () => {
     );
   }
 
-  const selectedResult = data[0];
+  const selectedResult = data.inspection;
+  const defectData = data.results.defects.map(defect => ({
+      name: defect.type, 
+      actual: defect.percentage, 
+  }));
+  const composition = data.results;
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -45,6 +51,8 @@ const Result: React.FC = () => {
         <ImageSection result={selectedResult} />
         <div className="flex-1">
           <Details result={selectedResult} />
+          <Composition composition ={composition}/>
+          <DefectRice defects={defectData} /> 
         </div>
       </div>
     </div>
@@ -52,3 +60,4 @@ const Result: React.FC = () => {
 };
 
 export default Result;
+

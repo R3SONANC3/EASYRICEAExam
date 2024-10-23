@@ -93,65 +93,61 @@ export class InspectionService {
     if (!grains?.length) {
       throw new Error('No grain data provided');
     }
-  
+
     console.log(`Processing ${grains.length} grains for inspection ${inspectionID}`);
-  
+
     await this.withRetry(async () => {
       await this.executeTransaction(async (connection) => {
-        // Extract unique shapes and types from grain data
         const uniqueShapes = [...new Set(grains.map((g) => g.shape))];
         const uniqueTypes = [...new Set(grains.map((g) => g.type))];
-  
-        // Fetch shape and type ID mappings from the database
+
         const { shapeMap, typeMap } = await this.getRiceCodeMappings(
           connection,
           uniqueShapes,
           uniqueTypes
         );
-  
-        // Validate if all shapes and types have corresponding IDs
+
         const missingShapes = uniqueShapes.filter((shape) => !shapeMap.has(shape));
         const missingTypes = uniqueTypes.filter((type) => !typeMap.has(type));
-  
+
         if (missingShapes.length > 0 || missingTypes.length > 0) {
-          throw new Error(
-            `Missing mappings for shapes: [${missingShapes.join(', ')}] ` +
-            `and types: [${missingTypes.join(', ')}]`
+          console.warn(
+            `Missing mappings for shapes: [${missingShapes.join(', ')}] and types: [${missingTypes.join(', ')}]. Skipping these grains.`
           );
+          return;
         }
-  
-        // Process grains in batches to improve performance
+
+
         const BATCH_SIZE = 100;
         for (let i = 0; i < grains.length; i += BATCH_SIZE) {
           const batch = grains.slice(i, i + BATCH_SIZE);
-  
-          // Map shape and type names to their corresponding IDs
+        
+
           const values = batch
-            .map((grain) => [
-              inspectionID,
-              grain.length,
-              grain.weight,
-              shapeMap.get(grain.shape), // Use shape ID
-              typeMap.get(grain.type)     // Use type ID
-            ])
-            .flat();
-  
-          // Prepare query placeholders for batch insertion
+          .map((grain) => [
+            inspectionID,
+            grain.length,
+            grain.weight,
+            shapeMap.get(grain.shape) ?? null,
+            typeMap.get(grain.type) ?? null,
+          ])
+          .flat();
+        
+
           const placeholders = batch.map(() => '(?, ?, ?, ?, ?)').join(',');
-  
-          // Execute batch insertion
+
           await connection.query(
             `INSERT INTO grainDetails 
              (inspectionID, length, weight, shapeID, riceTypeID) 
              VALUES ${placeholders}`,
             values
           );
-  
+
           console.log(
             `Processed batch ${i / BATCH_SIZE + 1} of ${Math.ceil(grains.length / BATCH_SIZE)}`
           );
         }
-  
+
         // Update the inspection record with the provided image URL and current timestamp
         await connection.query(
           `UPDATE inspections 
@@ -159,38 +155,11 @@ export class InspectionService {
            WHERE id = ?`,
           [imageURL, inspectionID]
         );
-  
+
         console.log(`Successfully processed all grains for inspection ${inspectionID}`);
       });
     });
   }
-  
-
-
-  // private async ensureRiceCodesExist(grains: GrainData[]): Promise<void> {
-  //   const uniqueShapes = [...new Set(grains.map(g => g.shape))];
-  //   const uniqueTypes = [...new Set(grains.map(g => g.type))];
-
-  //   await this.withRetry(async () => {
-  //     await this.executeTransaction(async (connection) => {
-  //       // Insert shapes
-  //       for (const shape of uniqueShapes) {
-  //         await connection.query(
-  //           `INSERT IGNORE INTO riceShapes (code) VALUES (?)`,
-  //           [shape]
-  //         );
-  //       }
-
-  //       // Insert types
-  //       for (const type of uniqueTypes) {
-  //         await connection.query(
-  //           `INSERT IGNORE INTO riceTypes (code) VALUES (?)`,
-  //           [type]
-  //         );
-  //       }
-  //     });
-  //   });
-  // }
 
   async createInspection(data: InspectionData): Promise<number> {
     const dbData = this.convertToDBData(data);
@@ -241,4 +210,5 @@ export class InspectionService {
       });
     });
   }
+
 }

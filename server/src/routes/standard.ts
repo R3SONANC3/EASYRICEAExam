@@ -47,8 +47,10 @@ router.post('/',
   validateFileUpload,
   validateFields,
   async (req: InspectionRequest, res: Response): Promise<void> => {
+    let connection; // Declare the connection variable here for use in the catch block
     try {
-      await pool.query('START TRANSACTION');
+      connection = await pool.getConnection(); // Get a connection from the pool
+      await connection.query('START TRANSACTION');
 
       if (!req.file) {
         throw new Error('No file uploaded');
@@ -91,7 +93,7 @@ router.post('/',
         jsonData.imageURL
       );
 
-      await pool.query('COMMIT');
+      await connection.query('COMMIT'); // Commit the transaction
 
       res.status(201).json({
         message: 'Inspection created successfully',
@@ -99,14 +101,17 @@ router.post('/',
         fileContents
       });
     } catch (error: unknown) {
-      await pool.query('ROLLBACK');
+      if (connection) await connection.query('ROLLBACK'); // Rollback if there's a connection
       console.error('Error:', error);
       const status = (error as Error).message.includes('file') ? 400 : 500;
       res.status(status).json({
         message: 'Error creating inspection',
         error: (error as Error).message
       });
+    } finally {
+      if (connection) connection.release(); // Ensure the connection is released
     }
 });
+
 
 export default router;

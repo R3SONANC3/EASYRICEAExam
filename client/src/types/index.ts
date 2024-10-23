@@ -1,3 +1,8 @@
+export interface DefectData {
+    type: string;
+    percentage: number;
+  }
+
 export interface Standard {
     id: string;
     name: string;
@@ -26,12 +31,12 @@ export interface Inspection {
     id: any;
     name: string;
     standardId: string;
-    standardName?:string;
+    standardName?: string;
     note?: string;
     price?: number;
     samplingDatetime?: string;
     samplingPoints?: ('front_end' | 'back_end' | 'other')[];
-    createdAt?: string;
+    createdAt?: any;
     updatedAt?: string;
     totalSamples?: number;
     imagePath?: string;
@@ -80,3 +85,39 @@ export interface ResultData {
     standardName: string;
     samplingPoints: string;
 }
+
+export interface InspectionResponse {
+    inspection: ResultData;
+    standard: any;
+    results: {
+        defects: DefectData[];
+    };
+}
+
+export interface Classification {
+    name: string;
+    percentage: number;
+    lengthRange: string;
+  }
+  
+  export interface UnclassifiedData {
+    percentage: number;
+    grains: number;
+  }
+  
+  export interface CompositionData {
+    classifications: Classification[];
+    defects: DefectData[];
+    standardName: string;
+    totalSamples: number;
+    unclassified: UnclassifiedData;
+  }
+  
+  export interface CompositionProps {
+    composition: CompositionData;
+  }
+  
+  export interface DefectData {
+    type: string;
+    percentage: number;
+  }

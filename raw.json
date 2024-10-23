@@ -1,78 +1,738 @@
 {
-    "requestID": "e562a660-47b6-4d90-93fe-1d10dc165bba",
-    "imageURL": "https://easyrice-es-trade-data.s3.ap-southeast-1.amazonaws.com/example-rice.webp",
-    "grains": [
-      {
-        "length": 7.1641,
-        "weight": 0.0176,
-        "shape": "wholegrain",
-        "type": "white"
-      },
-      {
-        "length": 6.2686,
-        "weight": 0.0173,
-        "shape": "wholegrain",
-        "type": "chalky"
-      },
-      {
-        "length": 7.0827,
-        "weight": 0.0197,
-        "shape": "wholegrain",
-        "type": "yellow"
-      },
-      {
-        "length": 6.8385,
-        "weight": 0.0181,
-        "shape": "wholegrain",
-        "type": "white"
-      },
-      {
-        "length": 5.8615,
-        "weight": 0.0183,
-        "shape": "broken",
-        "type": "chalky"
-      },
-      {
-        "length": 6.6756,
-        "weight": 0.0192,
-        "shape": "wholegrain",
-        "type": "chalky"
-      },
-      {
-        "length": 6.5128,
-        "weight": 0.0187,
-        "shape": "wholegrain",
-        "type": "white"
-      },
-      {
-        "length": 6.1872,
-        "weight": 0.0185,
-        "shape": "wholegrain",
-        "type": "white"
-      },
-      {
-        "length": 5.7801,
-        "weight": 0.0147,
-        "shape": "broken",
-        "type": "chalky"
-      },
-      {
-        "length": 5.5359,
-        "weight": 0.0146,
-        "shape": "broken",
-        "type": "white"
-      },
-      {
-        "length": 6.5128,
-        "weight": 0.0175,
-        "shape": "wholegrain",
-        "type": "chalky"
-      },
-      {
-        "length": 6.9199,
-        "weight": 0.0196,
-        "shape": "wholegrain",
-        "type": "white"
-      }
-    ]
-  }
+  "requestID": "e562a660-47b6-4d90-93fe-1d10dc165bba",
+  "imageURL": "https://easyrice-es-trade-data.s3.ap-southeast-1.amazonaws.com/example-rice.webp",
+  "grains": [
+    {
+      "length": 7.1641,
+      "weight": 0.0176,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.2686,
+      "weight": 0.0173,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 7.0827,
+      "weight": 0.0197,
+      "shape": "wholegrain",
+      "type": "yellow"
+    },
+    {
+      "length": 6.8385,
+      "weight": 0.0181,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 5.8615,
+      "weight": 0.0183,
+      "shape": "broken",
+      "type": "chalky"
+    },
+    {
+      "length": 6.6756,
+      "weight": 0.0192,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 6.5128,
+      "weight": 0.0187,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.1872,
+      "weight": 0.0185,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 5.7801,
+      "weight": 0.0147,
+      "shape": "broken",
+      "type": "chalky"
+    },
+    {
+      "length": 5.5359,
+      "weight": 0.0146,
+      "shape": "broken",
+      "type": "white"
+    },
+    {
+      "length": 6.5128,
+      "weight": 0.0175,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 6.9199,
+      "weight": 0.0196,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.5128,
+      "weight": 0.0183,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 8.141,
+      "weight": 0.0232,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 7.4897,
+      "weight": 0.023,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.5128,
+      "weight": 0.0183,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 5.2917,
+      "weight": 0.0126,
+      "shape": "broken",
+      "type": "yellow"
+    },
+    {
+      "length": 6.8385,
+      "weight": 0.0205,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 7.4083,
+      "weight": 0.0226,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 5.9429,
+      "weight": 0.016,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 6.9199,
+      "weight": 0.0211,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.1058,
+      "weight": 0.017,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 7.1641,
+      "weight": 0.0229,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 7.1641,
+      "weight": 0.0206,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 7.6526,
+      "weight": 0.0228,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.5942,
+      "weight": 0.0198,
+      "shape": "broken",
+      "type": "white"
+    },
+    {
+      "length": 7.5712,
+      "weight": 0.023,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 7.4083,
+      "weight": 0.0182,
+      "shape": "wholegrain",
+      "type": "yellow"
+    },
+    {
+      "length": 6.9199,
+      "weight": 0.0193,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.0244,
+      "weight": 0.0177,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 5.9429,
+      "weight": 0.0169,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 6.1058,
+      "weight": 0.0198,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 7.4083,
+      "weight": 0.0221,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.6756,
+      "weight": 0.0196,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.4314,
+      "weight": 0.0193,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.8385,
+      "weight": 0.0208,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.5942,
+      "weight": 0.0178,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 7.0827,
+      "weight": 0.0184,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.35,
+      "weight": 0.0172,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.9199,
+      "weight": 0.0207,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 5.2917,
+      "weight": 0.0135,
+      "shape": "broken",
+      "type": "chalky"
+    },
+    {
+      "length": 6.4314,
+      "weight": 0.0194,
+      "shape": "broken",
+      "type": "white"
+    },
+    {
+      "length": 7.0827,
+      "weight": 0.0189,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 7.0827,
+      "weight": 0.0222,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 7.6526,
+      "weight": 0.0192,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 7.4083,
+      "weight": 0.0222,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.2686,
+      "weight": 0.0159,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 7.734,
+      "weight": 0.0205,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 6.2686,
+      "weight": 0.0193,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 5.5359,
+      "weight": 0.015,
+      "shape": "broken",
+      "type": "white"
+    },
+    {
+      "length": 7.8968,
+      "weight": 0.0247,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.9199,
+      "weight": 0.0208,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.4314,
+      "weight": 0.0183,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 6.5128,
+      "weight": 0.0192,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 6.8385,
+      "weight": 0.0173,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 6.1058,
+      "weight": 0.0174,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 7.1641,
+      "weight": 0.0235,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 6.9199,
+      "weight": 0.0204,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 6.2686,
+      "weight": 0.0165,
+      "shape": "broken",
+      "type": "chalky"
+    },
+    {
+      "length": 7.0013,
+      "weight": 0.0189,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.6756,
+      "weight": 0.0188,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.8385,
+      "weight": 0.0168,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 7.0013,
+      "weight": 0.0176,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.35,
+      "weight": 0.018,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.7571,
+      "weight": 0.0187,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 5.4545,
+      "weight": 0.0129,
+      "shape": "broken",
+      "type": "white"
+    },
+    {
+      "length": 6.5128,
+      "weight": 0.0145,
+      "shape": "broken",
+      "type": "white"
+    },
+    {
+      "length": 7.6526,
+      "weight": 0.02,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 4.4372,
+      "weight": 0.0118,
+      "shape": "broken",
+      "type": "chalky"
+    },
+    {
+      "length": 7.734,
+      "weight": 0.0253,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 5.9429,
+      "weight": 0.0181,
+      "shape": "broken",
+      "type": "white"
+    },
+    {
+      "length": 7.4083,
+      "weight": 0.022,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.5128,
+      "weight": 0.0197,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.4314,
+      "weight": 0.019,
+      "shape": "broken",
+      "type": "chalky"
+    },
+    {
+      "length": 6.9199,
+      "weight": 0.0215,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 7.4897,
+      "weight": 0.0207,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 7.0013,
+      "weight": 0.0184,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 7.2455,
+      "weight": 0.0201,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 7.5712,
+      "weight": 0.0215,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.1872,
+      "weight": 0.0173,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.1058,
+      "weight": 0.0169,
+      "shape": "broken",
+      "type": "white"
+    },
+    {
+      "length": 6.35,
+      "weight": 0.0194,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.5128,
+      "weight": 0.018,
+      "shape": "broken",
+      "type": "chalky"
+    },
+    {
+      "length": 6.7571,
+      "weight": 0.0177,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 5.8615,
+      "weight": 0.0152,
+      "shape": "broken",
+      "type": "chalky"
+    },
+    {
+      "length": 5.7801,
+      "weight": 0.0166,
+      "shape": "broken",
+      "type": "chalky"
+    },
+    {
+      "length": 6.0244,
+      "weight": 0.017,
+      "shape": "broken",
+      "type": "chalky"
+    },
+    {
+      "length": 7.1641,
+      "weight": 0.0211,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 5.8615,
+      "weight": 0.0166,
+      "shape": "broken",
+      "type": "chalky"
+    },
+    {
+      "length": 7.734,
+      "weight": 0.0205,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 6.8385,
+      "weight": 0.0192,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.8385,
+      "weight": 0.0191,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 7.8154,
+      "weight": 0.0205,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 7.0013,
+      "weight": 0.0206,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 6.5128,
+      "weight": 0.0156,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 7.3269,
+      "weight": 0.0204,
+      "shape": "broken",
+      "type": "chalky"
+    },
+    {
+      "length": 6.5942,
+      "weight": 0.0185,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.5942,
+      "weight": 0.0192,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 7.0827,
+      "weight": 0.0222,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 4.5218,
+      "weight": 0.0149,
+      "shape": "broken",
+      "type": "white"
+    },
+    {
+      "length": 6.5128,
+      "weight": 0.0196,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 4.5218,
+      "weight": 0.014,
+      "shape": "broken",
+      "type": "white"
+    },
+    {
+      "length": 7.1641,
+      "weight": 0.0186,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 5.9429,
+      "weight": 0.0172,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.2686,
+      "weight": 0.018,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 5.5359,
+      "weight": 0.0154,
+      "shape": "broken",
+      "type": "white"
+    },
+    {
+      "length": 7.6526,
+      "weight": 0.0237,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 7.0827,
+      "weight": 0.022,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.4314,
+      "weight": 0.0176,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.4314,
+      "weight": 0.0185,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 7.1641,
+      "weight": 0.0208,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 7.0827,
+      "weight": 0.0203,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 6.5128,
+      "weight": 0.0181,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 6.5128,
+      "weight": 0.019,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 6.7571,
+      "weight": 0.021,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 7.8154,
+      "weight": 0.0229,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 7.4897,
+      "weight": 0.0218,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 7.1641,
+      "weight": 0.0213,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 7.9782,
+      "weight": 0.0222,
+      "shape": "wholegrain",
+      "type": "white"
+    },
+    {
+      "length": 4.7756,
+      "weight": 0.0128,
+      "shape": "broken",
+      "type": "chalky"
+    },
+    {
+      "length": 6.9199,
+      "weight": 0.018,
+      "shape": "wholegrain",
+      "type": "chalky"
+    },
+    {
+      "length": 7.4897,
+      "weight": 0.0204,
+      "shape": "wholegrain",
+      "type": "white"
+    }
+  ]
+}

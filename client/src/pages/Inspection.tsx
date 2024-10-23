@@ -130,7 +130,7 @@ const CreateInspection = () => {
                 console.log('Form submitted successfully');
                 const id = response.data.inspectionID; 
                 setInspectionID(id);
-                navigate('/result', { state: { inspectionID: id } });
+                navigate(`/result/${inspectionID}`, { state: { inspectionID: id } });
             } else {
                 console.error('Submission failed', response);
             }

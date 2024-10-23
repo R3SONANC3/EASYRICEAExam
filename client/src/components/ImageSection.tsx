@@ -1,20 +1,27 @@
 import { useNavigate } from "react-router-dom";
-import { ResultData } from "../types";
+import { type ResultData } from "../types";
 
 interface DetailsProps {
   result?: ResultData;
 }
 
-const ImageSection:React.FC<DetailsProps> = ({result}) => {
-  
+const ImageSection: React.FC<DetailsProps> = ({ result }) => {
+  const navigate = useNavigate();
+
   if (!result) {
-    return <div>Loading or no data available.</div>;
+    return (
+      <div className="w-1/3 mx-auto">
+        Loading or no data available.
+      </div>
+    );
   }
 
-  const navigate = useNavigate();
-  
-  const goBackPage = () => {
+  const handleGoBack = () => {
     navigate('/inspection');
+  };
+
+  const handleEdit = () => {
+    navigate(`/inspection/edit/${result.id}`, { state: { result } });
   };
 
   return (
@@ -25,20 +32,23 @@ const ImageSection:React.FC<DetailsProps> = ({result}) => {
         className="h-auto max-h-[500px] w-full object-contain mx-auto rounded"
       />
       <div className="mt-4 flex justify-center gap-4">
-        <button 
+        <button
+          type="button"
           className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded transition-colors"
-          onClick={goBackPage}
+          onClick={handleGoBack}
         >
           Back
         </button>
-        <button 
+        <button
+          type="button"
           className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded transition-colors"
+          onClick={handleEdit}
         >
           Edit
         </button>
       </div>
     </div>
   );
-}
+};
 
 export default ImageSection;

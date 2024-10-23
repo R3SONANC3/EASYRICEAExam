@@ -4,6 +4,13 @@ export interface Standard {
     description?: string;
 }
 
+export interface FetchParams {
+    page: number;
+    limit: number;
+    fromDate?: string;
+    toDate?: string;
+}
+
 export interface SubStandard {
     id: string;
     standardId: string;
@@ -16,15 +23,16 @@ export interface SubStandard {
 }
 
 export interface Inspection {
-    id: string;
+    id: any;
     name: string;
     standardId: string;
+    standardName?:string;
     note?: string;
     price?: number;
     samplingDatetime?: string;
     samplingPoints?: ('front_end' | 'back_end' | 'other')[];
-    createdAt: string;
-    updatedAt: string;
+    createdAt?: string;
+    updatedAt?: string;
     totalSamples?: number;
     imagePath?: string;
     rawDataPath?: string;

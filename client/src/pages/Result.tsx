@@ -4,14 +4,14 @@ import Details from "../components/Details";
 import ImageSection from "../components/ImageSection";
 import Navbar from "../components/Navbar";
 import { ResultData } from "../types";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 
 const Result: React.FC = () => {
   const [data, setData] = useState<ResultData[]>([]); 
   const location = useLocation();
-  const { inspectionID } = location.state || {};
+  const { inspectionID } = location.state || useParams();
 
-  useEffect(() => {
+  useEffect(() => {    
     if (inspectionID) {
       axios
         .get<ResultData[]>(`http://localhost:5000/api/result/${inspectionID}`)

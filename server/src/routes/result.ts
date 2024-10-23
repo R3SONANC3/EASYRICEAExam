@@ -7,7 +7,7 @@ const router: Router = express.Router();
 
 router.get('/:id', async (req: Request, res: Response) => {
     try {
-        const [rows] = await pool.query(`
+        const [inspectionRows] = await pool.query(`
             SELECT 
                 i.id,
                 i.name,
@@ -28,11 +28,24 @@ router.get('/:id', async (req: Request, res: Response) => {
             GROUP BY i.id, i.name, i.createdAt, i.updatedAt, i.samplingDate, i.note, i.price, i.totalSamples, i.imagePath, s.name
         `, [req.params.id]);
 
-        if (Array.isArray(rows) && rows.length === 0) {
+        if (Array.isArray(inspectionRows) && inspectionRows.length === 0) {
             res.status(404).json({ message: 'Inspection not found' });
         }
 
-        res.json(rows);
+        const [grainDetailRows] = await pool.query(`
+            SELECT 
+                gd.length,
+                gd.weight,
+                rs.code AS shape,
+                rt.code AS type
+            FROM grainDetails gd
+            JOIN riceShapes rs ON gd.shapeID = rs.id
+            JOIN riceTypes rt ON gd.riceTypeID = rt.id
+            WHERE gd.inspectionID = ?
+        `, [req.params.id]);
+   
+
+        res.json(inspectionRows);
     } catch (err) {
         res.status(500).json({ error: (err as Error).message });
     }

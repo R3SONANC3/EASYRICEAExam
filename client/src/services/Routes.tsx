@@ -3,6 +3,7 @@ import History from '../pages/History';
 import NotFound from '../pages/NotFound';
 import Inspection from '../pages/Inspection';
 import Result from '../pages/Result';
+import EditInspection from '../pages/EditInspection';
 
 
 const router = createBrowserRouter([
@@ -19,8 +20,12 @@ const router = createBrowserRouter([
     element: <Inspection />
   },
   {
-    path: '/result',
+    path: '/result/:inspectionId',
     element: <Result />
+  },
+  {
+    path: '/inspection/edit/:inspectionId',
+    element: <EditInspection />
   }
 ]);
 

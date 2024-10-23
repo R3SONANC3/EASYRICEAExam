@@ -8,7 +8,7 @@ export interface InspectionBody {
   name: string;
   standard: string[];
   note?: string;
-  price?: string; // เป็น string เพราะมาจาก form data
+  price?: string;
   samplingDateTime: string;
   samplingPoints?: string;
   grains?: string;

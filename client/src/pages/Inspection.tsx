@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar } from 'lucide-react';
 import axios from 'axios';
-import { Standard, InspectionForm } from '../services/types'
+import { Standard, InspectionForm } from '../types'
 import { useNavigate } from 'react-router-dom';
 
 
@@ -17,6 +17,7 @@ const CreateInspection = () => {
         samplingDateTime: '',
     });
     const [errors, setErrors] = useState<Partial<Record<keyof InspectionForm, string>>>({});
+    const [inspectionID, setInspectionID] = useState();
 
     useEffect(() => {
         fetchStandards();
@@ -108,10 +109,6 @@ const CreateInspection = () => {
                     }
                 }
             });
-
-            console.log('Form Data:', formData);
-
-            // Use Axios to send POST request
             const response = await axios.post(
                 'http://localhost:5000/api/standard/',
                 formDataToSend,
@@ -121,8 +118,6 @@ const CreateInspection = () => {
                     },
                 }
             );
-
-            // Check if the request was successful
             if (response.status === 201) {
                 setFormData({
                     name: '',
@@ -133,7 +128,9 @@ const CreateInspection = () => {
                     samplingDateTime: '',
                 });
                 console.log('Form submitted successfully');
-                navigate('/result')
+                const id = response.data.inspectionID; 
+                setInspectionID(id);
+                navigate('/result', { state: { inspectionID: id } });
             } else {
                 console.error('Submission failed', response);
             }

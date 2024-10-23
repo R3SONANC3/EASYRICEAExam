@@ -1,10 +1,9 @@
-// src/routes/standard.ts
 import express, { Request, Response, NextFunction } from 'express';
 import { upload, readUploadedFile } from '../services/fileService';
 import { InspectionService } from '../services/inspectionService';
 import { InspectionRequest } from '../types/express';
-import pool from '../services/db';
 import { InspectionPayload } from '../types';
+import pool from '../services/db';
 
 const router = express.Router();
 const inspectionService = new InspectionService(pool);
@@ -99,7 +98,6 @@ router.post('/',
         inspectionID,
         fileContents
       });
-
     } catch (error: unknown) {
       await pool.query('ROLLBACK');
       console.error('Error:', error);

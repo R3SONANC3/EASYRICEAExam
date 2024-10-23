@@ -1,7 +1,6 @@
 export interface Standard {
     id: string;
     name: string;
-    createDate: string;
     description?: string;
 }
 
@@ -48,4 +47,28 @@ export interface GrainDetail {
     weight: number;
     shape: 'wholegrain' | 'broken';
     type: 'white' | 'yellow' | 'red' | 'damage' | 'paddy' | 'chalky' | 'glutinous';
+}
+
+export interface InspectionForm {
+    name: string;
+    note: string;
+    standard: string;
+    price?: number;
+    samplingPoints: any[];
+    samplingDateTime: string;
+    uploadFile?: File;
+}
+
+export interface ResultData {
+    id: number;
+    name: string;
+    createdAt: string;
+    updatedAt: string;
+    samplingDate: string;
+    note: string;
+    price: string;
+    totalSamples: number;
+    imagePath: string;
+    standardName: string;
+    samplingPoints: string;
 }

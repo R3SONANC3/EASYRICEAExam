@@ -1,29 +1,44 @@
 import { useNavigate } from "react-router-dom";
+import { ResultData } from "../types";
 
-function ImageSection() {
-  const navigate = useNavigate();
+interface DetailsProps {
+  result?: ResultData;
+}
 
-  const goBackPage = () => {
-    navigate('/inspection')
+const ImageSection:React.FC<DetailsProps> = ({result}) => {
+  
+  if (!result) {
+    return <div>Loading or no data available.</div>;
   }
+
+  const navigate = useNavigate();
+  
+  const goBackPage = () => {
+    navigate('/inspection');
+  };
 
   return (
     <div className="w-1/3 mx-auto">
-    {/* Image with max size control */}
-    <img
-      src="https://easyrice-es-trade-data.s3.ap-southeast-1.amazonaws.com/example-rice.webp"
-      alt="Rice"
-      className="h-auto max-h-[500px] object-contain mx-auto rounded"
-    />
-
-    {/* Buttons centered underneath the image */}
-    <div className="mt-4 flex justify-center gap-4">
-      <button className="bg-green-500 text-white py-2 px-4 rounded" onClick={goBackPage}>Back</button>
-      <button className="bg-blue-500 text-white py-2 px-4 rounded">Edit</button>
+      <img
+        src={result.imagePath}
+        alt="Rice Inspection"
+        className="h-auto max-h-[500px] w-full object-contain mx-auto rounded"
+      />
+      <div className="mt-4 flex justify-center gap-4">
+        <button 
+          className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded transition-colors"
+          onClick={goBackPage}
+        >
+          Back
+        </button>
+        <button 
+          className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded transition-colors"
+        >
+          Edit
+        </button>
+      </div>
     </div>
-  </div>
-  )
+  );
 }
-
 
 export default ImageSection;

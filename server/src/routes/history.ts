@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import pool from '../services/db';
 import { RowDataPacket, FieldPacket } from 'mysql2';
 
@@ -100,11 +100,5 @@ router.delete('/:id', async (req: Request, res: Response) => {
         res.status(500).json({ error: (error as Error).message });
     }
 });
-
-router.post('/', (req: Request, res: Response ) => {
-    
-})
-
-
 
 export default router;

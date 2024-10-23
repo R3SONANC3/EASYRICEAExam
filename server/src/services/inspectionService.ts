@@ -1,11 +1,6 @@
 import { Pool, ResultSetHeader, RowDataPacket, PoolConnection } from 'mysql2/promise';
 import { InspectionData, GrainData, DBInspectionData } from '../types/index';
 
-interface RiceCode {
-  id: number;
-  code: string;
-}
-
 export class InspectionService {
   constructor(
     private pool: Pool,
@@ -98,50 +93,52 @@ export class InspectionService {
     if (!grains?.length) {
       throw new Error('No grain data provided');
     }
-
+  
     console.log(`Processing ${grains.length} grains for inspection ${inspectionID}`);
-
+  
     await this.withRetry(async () => {
       await this.executeTransaction(async (connection) => {
         // Extract unique shapes and types from grain data
         const uniqueShapes = [...new Set(grains.map((g) => g.shape))];
         const uniqueTypes = [...new Set(grains.map((g) => g.type))];
-
+  
         // Fetch shape and type ID mappings from the database
         const { shapeMap, typeMap } = await this.getRiceCodeMappings(
           connection,
           uniqueShapes,
           uniqueTypes
         );
-
+  
         // Validate if all shapes and types have corresponding IDs
         const missingShapes = uniqueShapes.filter((shape) => !shapeMap.has(shape));
         const missingTypes = uniqueTypes.filter((type) => !typeMap.has(type));
-
+  
         if (missingShapes.length > 0 || missingTypes.length > 0) {
           throw new Error(
             `Missing mappings for shapes: [${missingShapes.join(', ')}] ` +
             `and types: [${missingTypes.join(', ')}]`
           );
         }
-
+  
         // Process grains in batches to improve performance
         const BATCH_SIZE = 100;
         for (let i = 0; i < grains.length; i += BATCH_SIZE) {
           const batch = grains.slice(i, i + BATCH_SIZE);
-
+  
           // Map shape and type names to their corresponding IDs
-          const values = batch.map((grain) => [
-            inspectionID,
-            grain.length,
-            grain.weight,
-            shapeMap.get(grain.shape),  // Use shape ID
-            typeMap.get(grain.type)      // Use type ID
-          ]).flat();
-
+          const values = batch
+            .map((grain) => [
+              inspectionID,
+              grain.length,
+              grain.weight,
+              shapeMap.get(grain.shape), // Use shape ID
+              typeMap.get(grain.type)     // Use type ID
+            ])
+            .flat();
+  
           // Prepare query placeholders for batch insertion
           const placeholders = batch.map(() => '(?, ?, ?, ?, ?)').join(',');
-
+  
           // Execute batch insertion
           await connection.query(
             `INSERT INTO grainDetails 
@@ -149,24 +146,25 @@ export class InspectionService {
              VALUES ${placeholders}`,
             values
           );
-
+  
           console.log(
             `Processed batch ${i / BATCH_SIZE + 1} of ${Math.ceil(grains.length / BATCH_SIZE)}`
           );
         }
-
-        // Update the inspection record with the provided image URL
+  
+        // Update the inspection record with the provided image URL and current timestamp
         await connection.query(
           `UPDATE inspections 
-           SET imagePath = ? 
+           SET imagePath = ?, createdAt = NOW() 
            WHERE id = ?`,
           [imageURL, inspectionID]
         );
-
+  
         console.log(`Successfully processed all grains for inspection ${inspectionID}`);
       });
     });
   }
+  
 
 
   // private async ensureRiceCodesExist(grains: GrainData[]): Promise<void> {
@@ -201,7 +199,7 @@ export class InspectionService {
       return await this.executeTransaction(async (connection) => {
         const [result] = await connection.query<ResultSetHeader>(
           `INSERT INTO inspections 
-           (name, standardID, note, price, createdAt, rawDataPath)
+           (name, standardID, note, price, samplingDate, rawDataPath)
            VALUES (?, ?, ?, ?, ?, ?)`,
           [
             dbData.name,

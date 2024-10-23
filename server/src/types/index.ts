@@ -5,7 +5,7 @@ export interface InspectionData {
   price?: string;
   samplingDateTime: string;
   filePath?: string;
-  imageURL?: string; // เพิ่ม imageURL
+  imageURL?: string;
 }
 
 export interface DBInspectionData {
@@ -15,7 +15,7 @@ export interface DBInspectionData {
   price?: number;
   samplingDateTime: string;
   filePath?: string;
-  imageURL?: string; // เพิ่ม imageURL
+  imageURL?: string;
 }
 
 export interface GrainData {
@@ -34,4 +34,22 @@ export interface InspectionPayload {
     shape: string;
     type: string;
   }>;
+}
+
+
+export interface Standard {
+  id?: number;
+  name: string;
+  description?: string;
+}
+
+export interface SubStandard {
+  id?: number;
+  standardID: number;
+  keyName: string;
+  name: string;
+  maxLength?: number;
+  minLength?: number;
+  conditionMax?: 'LT' | 'LE' | 'GT' | 'GE';
+  conditionMin?: 'LT' | 'LE' | 'GT' | 'GE';
 }

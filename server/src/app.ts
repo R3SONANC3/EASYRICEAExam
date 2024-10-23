@@ -3,6 +3,7 @@ import cors from 'cors';
 import standardRouter from './routes/standard';
 import historyRouter from './routes/history';
 import morgan from 'morgan';
+import resultRouter from './routes/result'
 
 const app = express();
 
@@ -16,11 +17,7 @@ const PORT = process.env.PORT || 5000;
 
 app.use('/api/standard', standardRouter);
 app.use('/api/history', historyRouter)
-
-app.get('/get', (req,res) => {
-    res.json('message:sss')
-})
-
+app.use('/api/result', resultRouter)
 
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error(err.stack);

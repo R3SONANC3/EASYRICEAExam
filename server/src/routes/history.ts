@@ -73,8 +73,6 @@ router.delete('/:id', async (req: Request, res: Response) => {
     
 
     const tables = [
-        'inspectionDefects',
-        'inspectionCompositions',
         'inspectionSamplingPoints',
         'grainDetails',
     ];

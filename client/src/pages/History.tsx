@@ -3,6 +3,7 @@ import { Search, Plus, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { FetchParams, Inspection } from '../types';
+import axios from 'axios';
 
 
 const History = () => {
@@ -10,8 +11,6 @@ const History = () => {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [searchID, setSearchID] = useState('');
-  const [fromDate, setFromDate] = useState('');
-  const [toDate, setToDate] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
@@ -26,20 +25,18 @@ const History = () => {
       const queryParams = new URLSearchParams({
         page: params.page.toString(),
         limit: params.limit.toString(),
-        ...(params.fromDate && { fromDate: params.fromDate }),
-        ...(params.toDate && { toDate: params.toDate })
       });
 
-      const response = await fetch(
-        `http://localhost:5000/api/history?${queryParams}`,
-        { method: 'GET' }
-      );
+      const response = await axios.get(`http://localhost:5000/api/history`, {
+        params: queryParams,
+      });
 
-      if (!response.ok) {
+      // Check if the response was successful
+      if (response.status !== 200) {
         throw new Error('Failed to fetch inspections');
       }
 
-      const data = await response.json();
+      const data = response.data; // Axios automatically parses the response JSON
       setInspections(data.data);
       setTotal(data.total);
     } catch (err) {
@@ -50,24 +47,22 @@ const History = () => {
   }, []);
 
   useEffect(() => {
-    fetchInspections({ page, limit, fromDate, toDate });
-  }, [page, fromDate, toDate, fetchInspections]);
+    fetchInspections({ page, limit });
+  }, [page,fetchInspections]);
 
   const handleSearch = async () => {
     if (!searchID.trim()) return;
-
+  
     setIsLoading(true);
     setError('');
     try {
-      const response = await fetch(
-        `http://localhost:5000/api/history/${searchID}`
-      );
-
-      if (!response.ok) {
+      const response = await axios.get(`http://localhost:5000/api/history/${searchID}`);
+  
+      if (response.status !== 200) {
         throw new Error('Inspection not found');
       }
-
-      const data = await response.json();
+  
+      const data = response.data;
       setInspections([data.data]);
       setTotal(1);
       setPage(1);
@@ -80,26 +75,22 @@ const History = () => {
 
   const handleDelete = async () => {
     if (!selectedItems.length) return;
-
+  
     setIsLoading(true);
     setError('');
     try {
-      const response = await fetch(
-        `http://localhost:5000/api/history`,
-        {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ ids: selectedItems }),
-        }
-      );
-
-      if (!response.ok) {
+      const ids = selectedItems.join(',');
+      
+      const response = await axios.delete(`http://localhost:5000/api/history/${ids}`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (response.status !== 200) {
         throw new Error('Failed to delete inspections');
       }
-
-      await fetchInspections({ page, limit, fromDate, toDate });
+  
+      await fetchInspections({ page, limit });
       setSelectedItems([]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete inspections');
@@ -118,8 +109,7 @@ const History = () => {
 
   const clearFilter = () => {
     setSearchID('');
-    setFromDate('');
-    setToDate('');
+
     setPage(1);
     fetchInspections({ page: 1, limit });
   };
@@ -164,7 +154,7 @@ const History = () => {
         )}
 
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+          <div className="grid grid-cols-1 gap-4 mb-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Inspection ID
@@ -185,30 +175,6 @@ const History = () => {
                   <Search size={20} />
                 </button>
               </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                From Date
-              </label>
-              <input
-                type="date"
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                To Date
-              </label>
-              <input
-                type="date"
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
-                value={toDate}
-                onChange={(e) => setToDate(e.target.value)}
-              />
             </div>
 
             <div className="flex items-end">

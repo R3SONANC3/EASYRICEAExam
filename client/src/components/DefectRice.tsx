@@ -10,6 +10,22 @@ interface DefectRiceProps {
 }
 
 const DefectRice: React.FC<DefectRiceProps> = ({ defects }) => {
+    const allDefectNames = [
+        'white',
+        'yellow',
+        'red',
+        'damage',
+        'paddy',
+        'chalky',
+        'glutinous'
+    ];
+
+    const defectMap = defects.reduce((acc, defect) => {
+        acc[defect.name] = defect.actual;
+        return acc;
+    }, {} as Record<string, number>);
+
+    const total = allDefectNames.reduce((sum, name) => sum + (defectMap[name] || 0), 0);
 
     return (
         <div className="space-y-4 px-5">
@@ -23,12 +39,16 @@ const DefectRice: React.FC<DefectRiceProps> = ({ defects }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {defects.map((defect, index) => (
+                        {allDefectNames.map((name, index) => (
                             <tr key={index}>
-                                <td>{defect.name}</td>
-                                <td>{defect.actual.toFixed(2)} %</td> 
+                                <td>{name}</td>
+                                <td>{(defectMap[name] || 0).toFixed(2)} %</td>
                             </tr>
                         ))}
+                        <tr className="font-bold">
+                            <td>Total</td>
+                            <td>{total.toFixed(2)} %</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

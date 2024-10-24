@@ -78,7 +78,6 @@ router.delete('/:id', async (req: Request, res: Response) => {
     ];
 
     try {
-        // Delete related records for each id
         await Promise.all(
             tables.map(table => 
                 Promise.all(id.map(id => 

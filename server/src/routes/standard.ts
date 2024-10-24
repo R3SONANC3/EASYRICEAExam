@@ -47,7 +47,7 @@ router.post('/',
   validateFileUpload,
   validateFields,
   async (req: InspectionRequest, res: Response): Promise<void> => {
-    let connection; // Declare the connection variable here for use in the catch block
+    let connection;
     try {
       connection = await pool.getConnection(); // Get a connection from the pool
       await connection.query('START TRANSACTION');

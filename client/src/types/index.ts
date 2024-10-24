@@ -1,7 +1,7 @@
 export interface DefectData {
     type: string;
     percentage: number;
-  }
+}
 
 export interface Standard {
     id: string;
@@ -49,10 +49,11 @@ export interface InspectionResult {
         length: string;
         actual: number;
     }[];
-    defects: {
-        name: string;
-        actual: number;
-    }[];
+    defects: DefectData[];
+    classifications: Classification[];
+    standardName: string;
+    totalSamples: number;
+    unclassified: UnclassifiedData;
 }
 
 export interface GrainDetail {
@@ -63,9 +64,11 @@ export interface GrainDetail {
 }
 
 export interface InspectionForm {
+    id?: string;
     name: string;
     note: string;
     standard: string;
+    standardID?: string;
     price?: number;
     samplingPoints: any[];
     samplingDateTime: string;
@@ -89,35 +92,43 @@ export interface ResultData {
 export interface InspectionResponse {
     inspection: ResultData;
     standard: any;
-    results: {
-        defects: DefectData[];
-    };
+    results: InspectionResult;
 }
 
 export interface Classification {
     name: string;
     percentage: number;
     lengthRange: string;
-  }
-  
-  export interface UnclassifiedData {
+}
+
+export interface UnclassifiedData {
     percentage: number;
     grains: number;
-  }
-  
-  export interface CompositionData {
+}
+
+export interface CompositionData {
     classifications: Classification[];
     defects: DefectData[];
     standardName: string;
     totalSamples: number;
     unclassified: UnclassifiedData;
-  }
-  
-  export interface CompositionProps {
+}
+
+export interface CompositionProps {
     composition: CompositionData;
-  }
-  
-  export interface DefectData {
+}
+
+export interface DefectData {
     type: string;
     percentage: number;
-  }
+}
+
+
+export interface FormErrors {
+    name?: string;
+    standardId?: string;
+    price?: string;
+    samplingDatetime?: string;
+    samplingPoints?: string;
+    submit?: string;
+}

@@ -42,7 +42,6 @@ export interface Standard {
   standardData: SubStandard[];
 }
 
-// Result-related interfaces
 export interface GrainClassification {
   shape: string;
   type: string;
@@ -75,7 +74,6 @@ export interface InspectionResult {
   defects: DefectResult[];
 }
 
-// Database table interfaces
 export interface RiceShape {
   id: number;
   name: string;
@@ -105,4 +103,27 @@ export interface InspectionPayload {
     shape: string;
     type: string;
   }>;
+}
+
+export interface InspectionResponse {
+  inspection: {
+    id: number;
+    name: string;
+    createdAt: string;
+    updatedAt: string;
+    samplingDate: string;
+    note: string | null;
+    price: number | null;
+    totalSamples: number;
+    imagePath: string | null;
+    standardName: string;
+    samplingPoints: string;
+  };
+  standard: Standard;
+  results: InspectionResult;
+}
+
+export interface UpdateInspectionRequest extends Omit<InspectionData, 'standardID'> {
+  standardId: string;
+  samplingPoints: string;
 }

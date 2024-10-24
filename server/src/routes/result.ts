@@ -1,34 +1,32 @@
 import express, { Request, Response } from 'express';
 import { Router } from 'express';
 import pool from '../services/db';
-import { GrainData, InspectionResult, Standard, SubStandard } from '../types';
+import { GrainData, InspectionData, InspectionResponse, Standard, SubStandard } from '../types';
 import { RiceCalculationService } from '../services/RiceCalculationService ';
+import { ResultSetHeader, RowDataPacket } from 'mysql2/promise';
+
+interface UpdateInspectionRequest extends Omit<InspectionData, 'standardID'> {
+    standardId: string;
+    samplingPoints: string;
+}
+
+function formatToLocalMySQLDate(isoString: string): string {
+    const localDate = new Date(isoString);
+    localDate.setHours(localDate.getHours() + 7);
+    return localDate.toISOString().slice(0, 19).replace('T', ' ');
+}
 
 const router: Router = express.Router();
 
-interface InspectionResponse {
-    inspection: {
-        id: number;
-        name: string;
-        createdAt: string;
-        updatedAt: string;
-        samplingDate: string;
-        note: string | null;
-        price: number | null;
-        totalSamples: number;
-        imagePath: string | null;
-        standardName: string;
-        samplingPoints: string;
-    };
-    standard: Standard;
-    results: InspectionResult;
-}
-
 router.get('/:id', async (req: Request, res: Response) => {
-    const reqid = req.params.id
+    const reqid = req.params.id;
 
+    // Start a transaction
+    const connection = await pool.getConnection();
     try {
-        const [inspectionRows] = await pool.query<any[]>(`
+        await connection.beginTransaction();
+
+        const [inspectionRows] = await connection.query<any[]>(`
             SELECT 
                 i.id,
                 i.name,
@@ -48,15 +46,16 @@ router.get('/:id', async (req: Request, res: Response) => {
             LEFT JOIN samplingPoints sp ON isp.samplingPointID = sp.id
             WHERE i.id = ?
             GROUP BY i.id, i.name, i.createdAt, i.updatedAt, i.samplingDate,i.note, i.price, i.totalSamples, i.imagePath, s.name
-    `, [reqid]);
+        `, [reqid]);
 
         if (!inspectionRows || inspectionRows.length === 0) {
+            await connection.rollback(); // Rollback if inspection not found
             res.status(404).json({ message: 'Inspection not found' });
         }
 
         const inspection = inspectionRows[0];
-        
-        const [standardRows] = await pool.query<any[]>(`
+
+        const [standardRows] = await connection.query<any[]>(`
             SELECT 
                 s.id,
                 s.name,
@@ -78,13 +77,13 @@ router.get('/:id', async (req: Request, res: Response) => {
                 ss.id, ss.keyName, ss.name, 
                 ss.maxLength, ss.minLength, 
                 ss.conditionMax, ss.conditionMin;
-            `, [inspection.standardID]);
-            
-    
+        `, [inspection.standardID]);
+
         if (!standardRows || standardRows.length === 0) {
+            await connection.rollback(); // Rollback if standard not found
             res.status(404).json({ message: 'Standard not found' });
         }
-    
+
         // Transform standard rows into Standard type
         const standard: Standard = {
             id: standardRows[0].id.toString(),
@@ -101,9 +100,8 @@ router.get('/:id', async (req: Request, res: Response) => {
             }))
         };
 
-
         // 3. Get grain details
-        const [grainRows] = await pool.query<any[]>(`
+        const [grainRows] = await connection.query<any[]>(`
             SELECT 
                 gd.length,
                 gd.weight,
@@ -113,7 +111,7 @@ router.get('/:id', async (req: Request, res: Response) => {
             JOIN riceShapes rs ON gd.shapeID = rs.id
             JOIN riceTypes rt ON gd.riceTypeID = rt.id
             WHERE gd.inspectionID = ?
-    `, [req.params.id]);
+        `, [req.params.id]);
 
         // Transform grain rows into GrainData type
         const grainData: GrainData[] = grainRows.map(row => ({
@@ -127,7 +125,7 @@ router.get('/:id', async (req: Request, res: Response) => {
         const calculator = new RiceCalculationService();
         const results = calculator.calculateInspectionResults(grainData, standard);
 
-        // 5. Prepare and send response
+        // 5. Prepare response
         const response: InspectionResponse = {
             inspection: {
                 id: inspection.id,
@@ -146,11 +144,161 @@ router.get('/:id', async (req: Request, res: Response) => {
             results
         };
 
+        // Commit the transaction
+        await connection.commit();
         res.json(response);
 
     } catch (err) {
         console.error('Error in inspection route:', err);
+        await connection.rollback(); // Rollback transaction on error
         res.status(500).json({ error: (err as Error).message });
+    } finally {
+        if (connection) connection.release(); // Release the connection back to the pool
+    }
+});
+
+router.put('/:id', async (req: Request, res: Response) => {
+    const connection = await pool.getConnection();
+    const inspectionId = req.params.id;
+
+    const {
+        name,
+        standardId,
+        note,
+        price,
+        samplingDateTime,
+        samplingPoints
+    }: UpdateInspectionRequest = req.body;
+
+    try {
+        await connection.beginTransaction();
+
+        const [standardRows] = await connection.execute<RowDataPacket[]>(
+            'SELECT id FROM standards WHERE name = ?',
+            [standardId]
+        );
+
+        if (!standardRows.length) {
+            await connection.rollback();
+            res.status(400).json({ error: `Standard with name ${standardId} not found` });
+        }
+
+        const standardDbId = standardRows[0].id;
+        const formattedSamplingDate = formatToLocalMySQLDate(samplingDateTime);
+
+        const [updateResult] = await connection.execute<ResultSetHeader>(
+            `UPDATE inspections
+            SET 
+                name = ?,
+                standardID = ?,
+                note = ?,
+                price = ?,
+                samplingDate = ?,
+                updatedAt = CONVERT_TZ(NOW(), '+00:00', '+07:00')
+            WHERE id = ?;`,
+            [name, standardDbId, note || null, price || null, formattedSamplingDate, inspectionId]
+        );
+
+        if (updateResult.affectedRows === 0) {
+            await connection.rollback();
+            res.status(404).json({
+                error: 'Inspection not found',
+                details: {
+                    inspectionId,
+                    queryParams: [name, standardDbId, note || null, price || null, formattedSamplingDate, inspectionId]
+                }
+            });
+        }
+
+        // Delete existing sampling points
+        await connection.execute(
+            `DELETE FROM inspectionSamplingPoints WHERE inspectionID = ?`,
+            [inspectionId]
+        );
+
+        // Insert new sampling points if provided
+        if (samplingPoints) {
+            const samplingPointsArray = samplingPoints.split(', ');
+            // ดึง sampling point IDs จากตาราง samplingPoints
+            const pointIDs = await Promise.all(
+                samplingPointsArray.map(async (point) => {
+                    const [rows] = await connection.query<RowDataPacket[]>(
+                        'SELECT id FROM samplingPoints WHERE name = ?',
+                        [point.toLowerCase()]
+                    );
+                    return rows[0]?.id;
+                })
+            );
+
+            // ลบ sampling points เก่าที่เกี่ยวข้องกับ inspectionID นี้
+            await connection.execute<ResultSetHeader>(
+                'DELETE FROM inspectionSamplingPoints WHERE inspectionID = ?',
+                [inspectionId]
+            );
+
+            // เพิ่ม sampling points ใหม่ที่ได้ ID
+            await Promise.all(
+                pointIDs
+                    .filter((id): id is number => id !== null && id !== undefined)
+                    .map((pointID) =>
+                        connection.execute<ResultSetHeader>(
+                            'INSERT INTO inspectionSamplingPoints (inspectionID, samplingPointID) VALUES (?, ?)',
+                            [inspectionId, pointID]
+                        )
+                    )
+            );
+
+            console.log('New sampling points inserted successfully.');
+        }
+
+
+        await connection.commit();
+        console.log('Transaction committed');
+
+        const [inspections] = await connection.execute<RowDataPacket[]>(
+            `SELECT 
+                i.id,
+                i.name,
+                i.note,
+                i.price,
+                i.samplingDate,
+                i.totalSamples,
+                s.name as standardName,
+                GROUP_CONCAT(DISTINCT sp.code) as samplingPoints
+            FROM inspections i
+            LEFT JOIN standards s ON i.standardID = s.id
+            LEFT JOIN inspectionSamplingPoints isp ON i.id = isp.inspectionID
+            LEFT JOIN samplingPoints sp ON isp.samplingPointID = sp.id
+            WHERE i.id = ?
+            GROUP BY i.id, i.name, i.note, i.price, i.samplingDate, i.totalSamples, s.name`,
+            [inspectionId]
+        );
+
+        if (inspections.length === 0) {
+            res.status(404).json({
+                error: 'Inspection not found after update',
+                inspectionId
+            });
+        }
+
+        res.json(inspections[0]);
+
+    } catch (error) {
+        await connection.rollback();
+        console.error('Error updating inspection:', error);
+
+        // Provide more detailed error information
+        res.status(500).json({
+            error: 'Failed to update inspection',
+            details: error instanceof Error ? {
+                message: error.message,
+                stack: error.stack,
+                name: error.name
+            } : 'Unknown error'
+        });
+
+    } finally {
+        connection.release();
     }
 });
 

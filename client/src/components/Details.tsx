@@ -6,7 +6,6 @@ interface DetailsProps {
 }
 
 const Details: React.FC<DetailsProps> = ({ result }) => {
-  
   if (!result) {
     return <div>Loading or no data available.</div>;
   }

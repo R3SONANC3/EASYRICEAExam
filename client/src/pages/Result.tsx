@@ -18,7 +18,7 @@ const Result: React.FC = () => {
       axios
         .get<InspectionResponse>(`http://localhost:5000/api/result/${inspectionID}`)
         .then((response) => {
-          setData(response.data);   
+          setData(response.data);
         })
         .catch((error) => {
           console.error("Error fetching data:", error);
@@ -39,8 +39,8 @@ const Result: React.FC = () => {
 
   const selectedResult = data.inspection;
   const defectData = data.results.defects.map(defect => ({
-      name: defect.type, 
-      actual: defect.percentage, 
+    name: defect.type,
+    actual: defect.percentage,
   }));
   const composition = data.results;
 
@@ -51,8 +51,8 @@ const Result: React.FC = () => {
         <ImageSection result={selectedResult} />
         <div className="flex-1">
           <Details result={selectedResult} />
-          <Composition composition ={composition}/>
-          <DefectRice defects={defectData} /> 
+          <Composition composition={composition} />
+          <DefectRice defects={defectData} />
         </div>
       </div>
     </div>

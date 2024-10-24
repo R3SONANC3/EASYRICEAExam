@@ -120,20 +120,17 @@ INSERT INTO standards (name, description) VALUES
 
 INSERT INTO subStandards (standardID, keyName, name, maxLength, minLength, conditionMax, conditionMin) VALUES 
 (1, 'wholegrain', 'ข้าวเต็มเมล็ด', 99.0000, 7.0000, 'LT', 'GT'),
-(1, 'broken_rice1', 'ข้าวหักใหญ่', 7.0000, 3.5000, 'LT', 'GT');
-(1, 'broken_rice2', 'ข้าวหักทั่วไป', 3.5000, 0.0000, 'LT', 'GT');
+(1, 'broken_rice1', 'ข้าวหักใหญ่', 7.0000, 3.5000, 'LT', 'GT'),
+(1, 'broken_rice2', 'ข้าวหักทั่วไป', 3.5000, 0.0000, 'LT', 'GT'),
 (2, 'wholegrain', 'ข้าวเต็มเมล็ด', 99.0000, 6.0000, 'LT', 'GT'),
-(2, 'broken_rice1', 'ข้าวหักใหญ่', 6.0000, 4.5000, 'LT', 'GT');
+(2, 'broken_rice1', 'ข้าวหักใหญ่', 6.0000, 4.5000, 'LT', 'GT'),
 (2, 'broken_rice2', 'ข้าวหักทั่วไป', 4.5000, 0.0000, 'LT', 'GT');
 
 INSERT INTO subStandardShapes (subStandardID, shapeID) VALUES 
 (1, 1), 
-(2, 2);
-(3, 2);
-(4, 1);
-(5, 2);
+(2, 2),
+(3, 2),
+(4, 1),
+(5, 2),
 (6, 2);
-
-
-
 

@@ -1,6 +1,10 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import pool from '../services/db';
 import { RowDataPacket, FieldPacket } from 'mysql2';
+import { upload, readUploadedFile } from '../services/fileService';
+import { InspectionService } from '../services/inspectionService';
+import { InspectionRequest } from '../types/express';
+import { InspectionPayload } from '../types';
 
 const router = express.Router();
 
@@ -13,6 +17,29 @@ interface InspectionData extends RowDataPacket {
     totalSamples: number;
 }
 
+const inspectionService = new InspectionService(pool);
+
+const validateFileUpload = (
+    req: InspectionRequest,
+    res: Response,
+    next: NextFunction
+): void => {
+    if (!req.file) {
+        res.status(400).json({ message: 'No file uploaded' });
+    }
+    next();
+};
+
+const validateFields = (
+    req: InspectionRequest,
+    res: Response,
+    next: NextFunction
+): void => {
+    if (!req.body.name || !req.body.standard || req.body.standard.length === 0) {
+        res.status(400).json({ message: 'Missing required fields' });
+    }
+    next();
+};
 router.get('/', async (req: Request, res: Response) => {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
@@ -56,7 +83,7 @@ router.get('/:id', async (req: Request, res: Response) => {
           FROM inspections i
           JOIN standards s ON i.standardID = s.id
           WHERE i.id = ?
-        `,[id]);
+        `, [id]);
         res.json({ data: rows[0] });
     } catch (err) {
         console.error(err);
@@ -70,7 +97,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     if (!Array.isArray(id) || id.length === 0) {
         res.status(400).json({ error: 'Invalid input: ids must be a non-empty array.' });
     }
-    
+
 
     const tables = [
         'inspectionSamplingPoints',
@@ -79,15 +106,15 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     try {
         await Promise.all(
-            tables.map(table => 
-                Promise.all(id.map(id => 
+            tables.map(table =>
+                Promise.all(id.map(id =>
                     pool.query(`DELETE FROM ?? WHERE inspectionID = ?`, [table, id])
                 ))
             )
         );
 
         // Delete the inspections
-        await Promise.all(id.map(id => 
+        await Promise.all(id.map(id =>
             pool.query(`DELETE FROM inspections WHERE id = ?`, [id])
         ));
 
@@ -97,5 +124,64 @@ router.delete('/:id', async (req: Request, res: Response) => {
         res.status(500).json({ error: (error as Error).message });
     }
 });
+
+router.post('/',
+    upload.single('uploadFile'),
+    validateFileUpload,
+    validateFields,
+    async (req: InspectionRequest, res: Response): Promise<void> => {
+        // Remove connection handling from router since it's managed in service layer
+        try {
+            if (!req.file) {
+                throw new Error('No file uploaded');
+            }
+
+            const fileContents = await readUploadedFile(req.file.path);
+            let jsonData: InspectionPayload;
+
+            try {
+                jsonData = JSON.parse(fileContents);
+                console.log('Parsed JSON data:', jsonData);
+
+                if (!jsonData.grains || !Array.isArray(jsonData.grains)) {
+                    throw new Error('Invalid or missing grains data in uploaded file');
+                }
+            } catch (parseError) {
+                throw new Error(`Error parsing JSON from uploaded file: ${(parseError as Error).message}`);
+            }
+
+            const date = new Date(req.body.samplingDateTime);
+            const formattedDateTime = date.toISOString().slice(0, 19).replace('T', ' ');
+
+            // Create a new transaction wrapper in the service layer
+            const inspectionID = await inspectionService.createInspectionWithDetails({
+                inspection: {
+                    name: req.body.name,
+                    standardID: req.body.standard[0],
+                    note: req.body.note,
+                    price: req.body.price,
+                    samplingDateTime: formattedDateTime,
+                    filePath: `/uploads/${req.file.filename}`
+                },
+                samplingPoints: req.body.samplingPoints ? JSON.parse(req.body.samplingPoints) as string[] : undefined,
+                grainData: jsonData.grains,
+                imageURL: jsonData.imageURL
+            });
+
+            res.status(201).json({
+                message: 'Inspection created successfully',
+                fileContents,
+                inspectionID
+            });
+        } catch (error: unknown) {
+            console.error('Error:', error);
+            const status = (error as Error).message.includes('file') ? 400 : 500;
+            res.status(status).json({
+                message: 'Error creating inspection',
+                error: (error as Error).message
+            });
+        }
+    }
+);
 
 export default router;

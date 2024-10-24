@@ -17,7 +17,6 @@ const CreateInspection = () => {
         samplingDateTime: '',
     });
     const [errors, setErrors] = useState<Partial<Record<keyof InspectionForm, string>>>({});
-    const [inspectionID, setInspectionID] = useState();
 
     useEffect(() => {
         fetchStandards();
@@ -110,7 +109,7 @@ const CreateInspection = () => {
                 }
             });
             const response = await axios.post(
-                'http://localhost:5000/api/standard/',
+                'http://localhost:5000/api/history/',
                 formDataToSend,
                 {
                     headers: {
@@ -129,8 +128,7 @@ const CreateInspection = () => {
                 });
                 console.log('Form submitted successfully');
                 const id = response.data.inspectionID; 
-                setInspectionID(id);
-                navigate(`/result/${inspectionID}`, { state: { inspectionID: id } });
+                navigate(`/result/${id}`, { state: { inspectionID: id } });
             } else {
                 console.error('Submission failed', response);
             }

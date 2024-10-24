@@ -18,7 +18,7 @@ const Result: React.FC = () => {
       axios
         .get<InspectionResponse>(`http://localhost:5000/api/result/${inspectionID}`)
         .then((response) => {
-          setData(response.data);
+          setData(response.data);          
         })
         .catch((error) => {
           console.error("Error fetching data:", error);

@@ -22,7 +22,7 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: 1234567    
-      MYSQL_DATABASE: riceinspection   
+      MYSQL_DATABASE: easyrice   
       MYSQL_USER: admin                    
       MYSQL_PASSWORD: 1234567                 
     ports:
